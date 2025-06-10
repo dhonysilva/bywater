@@ -18,6 +18,11 @@ defmodule BywaterWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/organizations", OrganizationLive.Index, :index
+    live "/organizations/new", OrganizationLive.Form, :new
+    live "/organizations/:id", OrganizationLive.Show, :show
+    live "/organizations/:id/edit", OrganizationLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
