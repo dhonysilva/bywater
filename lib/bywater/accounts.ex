@@ -200,11 +200,14 @@ defmodule Bywater.Accounts do
       # Create user
       {:ok, user} = register_user(user_attrs)
 
+      parts = String.split(user.email, "@")
+      username = Enum.at(parts, 0)
+
       # Create the Personel organization
       {:ok, organization} =
         create_organization(%{
           name: "Personel",
-          slug: user.email,
+          slug: username,
           active: true
         })
 
