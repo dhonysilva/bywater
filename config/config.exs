@@ -7,6 +7,19 @@
 # General application configuration
 import Config
 
+config :bywater, :scopes,
+  user: [
+    default: true,
+    module: Bywater.Accounts.Scope,
+    assign_key: :current_scope,
+    access_path: [:user, :id],
+    schema_key: :user_id,
+    schema_type: :id,
+    schema_table: :users,
+    test_data_fixture: Bywater.AccountsFixtures,
+    test_login_helper: :register_and_log_in_user
+  ]
+
 config :bywater,
   ecto_repos: [Bywater.Repo],
   generators: [timestamp_type: :utc_datetime]
