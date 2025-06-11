@@ -9,6 +9,9 @@ defmodule Bywater.Accounts.Organization do
     field :slug, :string
     field :active, :boolean, default: true
 
+    many_to_many :users, Bywater.Accounts.User,
+      join_through: Bywater.Accounts.OrganizationMembership
+
     timestamps(type: :utc_datetime)
   end
 
