@@ -2,10 +2,12 @@ defmodule Bywater.Accounts.Organization do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Phoenix.Param, key: :slug}
+
   schema "organizations" do
     field :name, :string
     field :slug, :string
-    field :active, :boolean, default: false
+    field :active, :boolean, default: true
 
     timestamps(type: :utc_datetime)
   end
@@ -14,6 +16,7 @@ defmodule Bywater.Accounts.Organization do
   def changeset(organization, attrs) do
     organization
     |> cast(attrs, [:name, :slug, :active])
-    |> validate_required([:name, :slug, :active])
+    |> validate_required([:name, :slug])
+    |> unique_constraint(:slug)
   end
 end
