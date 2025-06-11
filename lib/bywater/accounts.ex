@@ -7,6 +7,13 @@ defmodule Bywater.Accounts do
   alias Bywater.Repo
 
   alias Bywater.Accounts.Organization
+  alias Bywater.Accounts.OrganizationMembership
+
+  def create_membership(attrs) do
+    %OrganizationMembership{}
+    |> OrganizationMembership.changeset(attrs)
+    |> Repo.insert()
+  end
 
   @doc """
   Returns the list of organizations.
@@ -174,6 +181,46 @@ defmodule Bywater.Accounts do
     %User{}
     |> User.email_changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Registers a user and creates a Personel organization.
+
+  ## Examples
+
+      iex> register_user_with_organization(%{field: value})
+      {:ok, %User{}}
+
+      iex> register_user_with_organization(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def register_user_with_organization(user_attrs) do
+    Repo.transaction(fn ->
+      # Create user
+      {:ok, user} = register_user(user_attrs)
+
+      parts = String.split(user.email, "@")
+      username = Enum.at(parts, 0)
+
+      # Create the Personel organization
+      {:ok, organization} =
+        create_organization(%{
+          name: "Personel",
+          slug: username,
+          active: true
+        })
+
+      # Create membership
+      {:ok, _membership} =
+        create_membership(%{
+          user_id: user.id,
+          organization_id: organization.id,
+          role: "admin"
+        })
+
+      user
+    end)
   end
 
   ## Settings
