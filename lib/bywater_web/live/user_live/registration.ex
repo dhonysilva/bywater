@@ -50,7 +50,7 @@ defmodule BywaterWeb.UserLive.Registration do
   end
 
   def handle_event("save", %{"user" => user_params}, socket) do
-    case Accounts.register_user(user_params) do
+    case Accounts.register_user_with_organization(user_params) do
       {:ok, user} ->
         {:ok, _} =
           Accounts.deliver_login_instructions(
