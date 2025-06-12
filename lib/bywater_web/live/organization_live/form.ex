@@ -81,6 +81,14 @@ defmodule BywaterWeb.OrganizationLive.Form do
   defp save_organization(socket, :new, organization_params) do
     case Accounts.create_organization(organization_params) do
       {:ok, organization} ->
+        # Create membership for the current user
+        {:ok, _membership} =
+          Accounts.create_membership(%{
+            user_id: socket.assigns.current_scope.user.id,
+            organization_id: organization.id,
+            role: "admin"
+          })
+
         {:noreply,
          socket
          |> put_flash(:info, "Organization created successfully")
