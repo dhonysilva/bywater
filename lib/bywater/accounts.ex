@@ -41,6 +41,25 @@ defmodule Bywater.Accounts do
   end
 
   @doc """
+  Returns the list of organizations for a specific user.
+
+  ## Examples
+
+      iex> list_user_organizations(user)
+      [%Organization{}, ...]
+
+  """
+  def list_user_organizations(%User{} = user) do
+    query = from o in Organization,
+            join: m in OrganizationMembership,
+            on: m.organization_id == o.id,
+            where: m.user_id == ^user.id,
+            order_by: [asc: o.name]
+    
+    Repo.all(query)
+  end
+
+  @doc """
   Gets a single organization.
 
   Raises `Ecto.NoResultsError` if the Organization does not exist.
