@@ -11,6 +11,7 @@ defmodule BywaterWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_scope_for_user
+    plug :assign_org_to_scope
   end
 
   pipeline :api do
@@ -21,11 +22,6 @@ defmodule BywaterWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-
-    live "/organizations", OrganizationLive.Index, :index
-    live "/organizations/new", OrganizationLive.Form, :new
-    live "/organizations/:id", OrganizationLive.Show, :show
-    live "/organizations/:id/edit", OrganizationLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
@@ -68,10 +64,29 @@ defmodule BywaterWeb.Router do
     pipe_through [:browser]
 
     live_session :current_user,
-      on_mount: [{BywaterWeb.UserAuth, :mount_current_scope}] do
+      on_mount: [
+        {BywaterWeb.UserAuth, :mount_current_scope},
+        {BywaterWeb.UserAuth, :assign_org_to_scope}
+      ] do
       live "/users/register", UserLive.Registration, :new
       live "/users/log-in", UserLive.Login, :new
       live "/users/log-in/:token", UserLive.Confirmation, :new
+
+      live "/orgs", OrganizationLive.Index, :index
+      live "/orgs/new", OrganizationLive.Form, :new
+      live "/orgs/:org", OrganizationLive.Show, :show
+      live "/orgs/:org/edit", OrganizationLive.Form, :edit
+
+      live "/orgs/:org", OrganizationLive.Show, :show
+      live "/orgs/:org/posts", PostLive.Index, :index
+      live "/orgs/:org/posts/new", PostLive.Form, :new
+      live "/orgs/:org/posts/:id", PostLive.Show, :show
+      live "/orgs/:org/posts/:id/edit", PostLive.Form, :edit
+
+      live "/organizations", OrganizationLive.Index, :index
+      live "/organizations/new", OrganizationLive.Form, :new
+      live "/organizations/:org", OrganizationLive.Show, :show
+      live "/organizations/:org/edit", OrganizationLive.Form, :edit
     end
 
     post "/users/log-in", UserSessionController, :create
