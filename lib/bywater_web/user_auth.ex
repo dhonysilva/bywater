@@ -245,6 +245,46 @@ defmodule BywaterWeb.UserAuth do
     end
   end
 
+  def on_mount(:assign_org_to_scope, %{"org" => slug}, _session, socket) do
+    current_scope = socket.assigns.current_scope
+
+    case Bywater.Accounts.get_organization_by_slug!(slug) do
+      %Bywater.Accounts.Organization{} = org ->
+        if membership = Bywater.Accounts.get_membership(current_scope.user, org) do
+          new_scope =
+            current_scope
+            |> Bywater.Accounts.Scope.put_organization(org)
+            |> Bywater.Accounts.Scope.put_membership(membership)
+
+          {:cont, Phoenix.Component.assign(socket, :current_scope, new_scope)}
+        else
+          {:halt,
+           socket
+           |> put_flash(:error, "You don't have access to that organization")
+           |> redirect(to: ~p"/orgs")}
+        end
+
+      _ ->
+        {:halt,
+         socket
+         |> put_flash(:error, "Organization not found")
+         |> redirect(to: ~p"/orgs")}
+    end
+  end
+
+  def on_mount(:assign_org_to_scope, _params, _session, socket), do: {:cont, socket}
+
+  def assign_org_to_scope(conn, _opts) do
+    current_scope = conn.assigns.current_scope
+
+    if slug = conn.params["org"] do
+      org = Bywater.Accounts.get_organization_by_slug!(slug)
+      assign(conn, :current_scope, Bywater.Accounts.Scope.put_organization(current_scope, org))
+    else
+      conn
+    end
+  end
+
   defp mount_current_scope(socket, session) do
     Phoenix.Component.assign_new(socket, :current_scope, fn ->
       {user, _} =
