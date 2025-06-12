@@ -49,13 +49,15 @@ defmodule Bywater.Accounts do
       [%Organization{}, ...]
 
   """
-  def list_user_organizations(%User{} = user) do
-    query = from o in Organization,
-            join: m in OrganizationMembership,
-            on: m.organization_id == o.id,
-            where: m.user_id == ^user.id,
-            order_by: [asc: o.name]
-    
+  # TODO: it might be a better way to do this
+  def list_user_organizations(%Scope{} = scope) do
+    query =
+      from o in Organization,
+        join: m in OrganizationMembership,
+        on: m.organization_id == o.id,
+        where: m.user_id == ^scope.user.id,
+        order_by: [asc: o.name]
+
     Repo.all(query)
   end
 
