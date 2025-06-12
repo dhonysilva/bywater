@@ -17,8 +17,10 @@ defmodule Bywater.Accounts.Scope do
   """
 
   alias Bywater.Accounts.User
+  alias Bywater.Accounts.Organization
+  alias Bywater.Accounts.OrganizationMembership
 
-  defstruct user: nil
+  defstruct user: nil, organization: nil, membership: nil
 
   @doc """
   Creates a scope for the given user.
@@ -30,4 +32,21 @@ defmodule Bywater.Accounts.Scope do
   end
 
   def for_user(nil), do: nil
+
+  def put_user(%__MODULE__{} = scope, %User{} = user) do
+    %{scope | user: user}
+  end
+
+  def put_organization(%__MODULE__{user: user} = scope, %Organization{} = org) do
+    membership = get_membership(user, org)
+    %{scope | organization: org, membership: membership}
+  end
+
+  def put_membership(%__MODULE__{} = scope, %OrganizationMembership{} = membership) do
+    %{scope | membership: membership}
+  end
+
+  defp get_membership(%User{id: user_id}, %Organization{id: org_id}) do
+    Bywater.Repo.get_by(OrganizationMembership, user_id: user_id, organization_id: org_id)
+  end
 end

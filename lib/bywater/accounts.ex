@@ -6,6 +6,8 @@ defmodule Bywater.Accounts do
   import Ecto.Query, warn: false
   alias Bywater.Repo
 
+  alias Bywater.Accounts.Scope
+  alias Bywater.Accounts.User
   alias Bywater.Accounts.Organization
   alias Bywater.Accounts.OrganizationMembership
 
@@ -13,6 +15,16 @@ defmodule Bywater.Accounts do
     %OrganizationMembership{}
     |> OrganizationMembership.changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Gets a membership for a user in an organization.
+  """
+  def get_membership(%User{} = user, %Organization{} = organization) do
+    Repo.one(
+      from m in OrganizationMembership,
+        where: m.user_id == ^user.id and m.organization_id == ^organization.id
+    )
   end
 
   @doc """
@@ -43,6 +55,14 @@ defmodule Bywater.Accounts do
 
   """
   def get_organization!(id), do: Repo.get!(Organization, id)
+
+  def get_organization_by_slug(slug) do
+    Repo.get_by(Organization, slug: slug)
+  end
+
+  def get_organization_by_slug!(slug) do
+    Repo.get_by!(Organization, slug: slug)
+  end
 
   @doc """
   Creates a organization.
