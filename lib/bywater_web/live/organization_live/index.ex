@@ -7,6 +7,7 @@ defmodule BywaterWeb.OrganizationLive.Index do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
+      <pre><%= inspect assigns.current_scope, pretty: true  %></pre>
       <.header>
         Listing Organizations
         <:actions>
@@ -45,13 +46,13 @@ defmodule BywaterWeb.OrganizationLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    organizations = 
+    organizations =
       if socket.assigns.current_scope && socket.assigns.current_scope.user do
-        Accounts.list_user_organizations(socket.assigns.current_scope.user)
+        Accounts.list_user_organizations(socket.assigns.current_scope)
       else
         []
       end
-    
+
     {:ok,
      socket
      |> assign(:page_title, "Listing Organizations")
