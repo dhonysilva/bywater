@@ -45,10 +45,17 @@ defmodule BywaterWeb.OrganizationLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    organizations = 
+      if socket.assigns.current_scope && socket.assigns.current_scope.user do
+        Accounts.list_user_organizations(socket.assigns.current_scope.user)
+      else
+        []
+      end
+    
     {:ok,
      socket
      |> assign(:page_title, "Listing Organizations")
-     |> stream(:organizations, Accounts.list_organizations())}
+     |> stream(:organizations, organizations)}
   end
 
   @impl true
