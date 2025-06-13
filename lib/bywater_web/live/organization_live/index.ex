@@ -40,6 +40,12 @@ defmodule BywaterWeb.OrganizationLive.Index do
           </.link>
         </:action>
       </.table>
+
+      <ul>
+        <%= for {_id, organization} <- @streams.organizations do %>
+          <li>Organization Name: {organization.name}</li>
+        <% end %>
+      </ul>
     </Layouts.app>
     """
   end
