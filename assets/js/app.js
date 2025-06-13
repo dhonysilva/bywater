@@ -25,9 +25,37 @@ import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
+// Define hooks
+const Hooks = {
+  Dropdown: {
+    mounted() {
+      this.toggleButton = this.el.querySelector("[data-dropdown-toggle]")
+      this.menuContent = this.el.querySelector("[data-dropdown-content]")
+      
+      if (!this.toggleButton || !this.menuContent) return
+      
+      this.toggleButton.addEventListener("click", () => {
+        const expanded = this.toggleButton.getAttribute("aria-expanded") === "true"
+        this.toggleButton.setAttribute("aria-expanded", !expanded)
+        this.menuContent.classList.toggle("hidden")
+      })
+      
+      // Close on click outside
+      document.addEventListener("click", (event) => {
+        if (!this.el.contains(event.target)) {
+          this.menuContent.classList.add("hidden")
+          this.toggleButton.setAttribute("aria-expanded", "false")
+        }
+      })
+    }
+  }
+}
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits
