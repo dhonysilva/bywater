@@ -78,6 +78,7 @@ defmodule BywaterWeb.Router do
       live "/orgs/:org/edit", OrganizationLive.Form, :edit
 
       live "/orgs/:org", OrganizationLive.Show, :show
+      live "/orgs/:org/dashboard", OrganizationLive.Dashboard, :show
       live "/orgs/:org/posts", PostLive.Index, :index
       live "/orgs/:org/posts/new", PostLive.Form, :new
       live "/orgs/:org/posts/:id", PostLive.Show, :show

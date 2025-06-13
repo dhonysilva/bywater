@@ -7,13 +7,14 @@ defmodule BywaterWeb.OrganizationLive.Index do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <pre><%= inspect assigns.current_scope, pretty: true  %></pre>
+      <%!-- <pre><%= inspect assigns.current_scope, pretty: true  %></pre> --%>
       <.header>
         Listing Organizations
         <:actions>
-          <.button variant="primary" navigate={~p"/organizations/new"}>
+          <.organization_selector current_org={@current_org} user_organizations={@user_organizations} />
+          <%!-- <.button variant="primary" navigate={~p"/organizations/new"}>
             <.icon name="hero-plus" /> New Organization
-          </.button>
+          </.button> --%>
         </:actions>
       </.header>
 
@@ -40,29 +41,39 @@ defmodule BywaterWeb.OrganizationLive.Index do
           </.link>
         </:action>
       </.table>
-
-      <ul>
-        <%= for {_id, organization} <- @streams.organizations do %>
-          <li>Organization Name: {organization.name}</li>
-        <% end %>
-      </ul>
     </Layouts.app>
     """
   end
 
   @impl true
   def mount(_params, _session, socket) do
-    organizations =
+    user_organizations =
       if socket.assigns.current_scope && socket.assigns.current_scope.user do
         Accounts.list_user_organizations(socket.assigns.current_scope.user)
       else
         []
       end
 
+    # Get the current organization (default to the first one if available)
+    current_org =
+      cond do
+        socket.assigns.current_scope && socket.assigns.current_scope.organization ->
+          socket.assigns.current_scope.organization
+
+        Enum.count(user_organizations) > 0 ->
+          List.first(user_organizations)
+
+        true ->
+          # Fallback empty organization
+          %{id: nil, name: "Select Organization", slug: nil}
+      end
+
     {:ok,
      socket
      |> assign(:page_title, "Listing Organizations")
-     |> stream(:organizations, organizations)}
+     |> stream(:organizations, user_organizations)
+     |> assign(:user_organizations, user_organizations)
+     |> assign(:current_org, current_org)}
   end
 
   @impl true
@@ -71,5 +82,39 @@ defmodule BywaterWeb.OrganizationLive.Index do
     {:ok, _} = Accounts.delete_organization(organization)
 
     {:noreply, stream_delete(socket, :organizations, organization)}
+  end
+
+  # Organization selector component
+  def organization_selector(assigns) do
+    ~H"""
+    <div class="mr-4">
+      <.dropdown>
+        <:trigger>
+          <button type="button" class="flex items-center gap-2 p-2 border rounded hover:bg-base-200">
+            <span>{@current_org.name}</span>
+            <.icon name="hero-chevron-down" />
+          </button>
+        </:trigger>
+
+        <:content>
+          <%= for org <- @user_organizations do %>
+            <li>
+              <.link navigate={~p"/orgs/#{org.slug}/dashboard"}>
+                {org.name}
+              </.link>
+            </li>
+          <% end %>
+          <li class="menu-title pt-2 mt-2 border-t border-base-300">
+            <span>Actions</span>
+          </li>
+          <li>
+            <.link navigate={~p"/organizations/new"}>
+              Create New Organization
+            </.link>
+          </li>
+        </:content>
+      </.dropdown>
+    </div>
+    """
   end
 end
