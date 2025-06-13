@@ -466,4 +466,41 @@ defmodule BywaterWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  @doc """
+  Renders a dropdown menu.
+
+  ## Examples
+
+      <.dropdown id="user-menu">
+        <:trigger>
+          <button class="btn">Open Menu</button>
+        </:trigger>
+        
+        <:content>
+          <div class="p-2">
+            <.link navigate={~p"/settings"}>Settings</.link>
+            <.link navigate={~p"/logout"}>Logout</.link>
+          </div>
+        </:content>
+      </.dropdown>
+  """
+  attr :id, :string, required: true
+  attr :class, :string, default: nil
+
+  slot :trigger, required: true
+  slot :content, required: true
+
+  def dropdown(assigns) do
+    ~H"""
+    <div class={["dropdown", @class]}>
+      <label tabindex="0" class="cursor-pointer">
+        <%= render_slot(@trigger) %>
+      </label>
+      <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 border border-base-300 rounded-box w-52 z-30">
+        <%= render_slot(@content) %>
+      </ul>
+    </div>
+    """
+  end
 end
