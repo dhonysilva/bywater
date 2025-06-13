@@ -48,7 +48,7 @@ defmodule BywaterWeb.OrganizationLive.Index do
   def mount(_params, _session, socket) do
     organizations =
       if socket.assigns.current_scope && socket.assigns.current_scope.user do
-        Accounts.list_user_organizations(socket.assigns.current_scope)
+        Accounts.list_user_organizations(socket.assigns.current_scope.user)
       else
         []
       end
