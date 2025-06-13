@@ -9,8 +9,9 @@ defmodule BywaterWeb.OrganizationLive.Show do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <pre><%= inspect assigns.current_scope, pretty: true  %></pre>
       <.header>
-        Organization {@organization.id}
+        Organization: {@current_org.name}
         <:subtitle>This is a organization record from your database.</:subtitle>
+        User role: {@current_membership.role}
         <:actions>
           <.button navigate={~p"/organizations"}>
             <.icon name="hero-arrow-left" />
@@ -38,6 +39,9 @@ defmodule BywaterWeb.OrganizationLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Organization")
+     |> assign(current_user: socket.assigns.current_scope.user)
+     |> assign(current_org: socket.assigns.current_scope.organization)
+     |> assign(current_membership: socket.assigns.current_scope.membership)
      |> assign(:organization, Accounts.get_organization_by_slug!(slug))}
   end
 end
