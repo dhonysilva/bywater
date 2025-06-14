@@ -8,6 +8,7 @@ defmodule BywaterWeb.OrganizationLive.Dashboard do
     ~H"""
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <%!-- <pre><%= inspect assigns.current_scope, pretty: true  %></pre> --%>
+
       <.header>
         Dashboard for {@current_org.name}
         <:subtitle>Administrative Dashboard.</:subtitle>
@@ -24,6 +25,40 @@ defmodule BywaterWeb.OrganizationLive.Dashboard do
           </.button>
         </:actions>
       </.header>
+
+      <nav class="space-y-1">
+        <.link
+          navigate={~p"/orgs/#{@current_org.slug}/dashboard"}
+          class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
+        >
+          <.icon name="hero-home" class="mr-3 h-6 w-6" /> Dashboard
+        </.link>
+
+        <.link
+          navigate={~p"/orgs/#{@current_org.slug}/projects"}
+          class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
+        >
+          <.icon name="hero-folder" class="mr-3 h-6 w-6" /> Projects
+        </.link>
+
+        <%= if @current_membership.role in ["admin", "manager"] do %>
+          <.link
+            navigate={~p"/orgs/#{@current_org.slug}/team"}
+            class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
+          >
+            <.icon name="hero-users" class="mr-3 h-6 w-6" /> Team Members
+          </.link>
+        <% end %>
+
+        <%= if @current_membership.role == "admin" do %>
+          <.link
+            navigate={~p"/orgs/#{@current_org.slug}/settings"}
+            class="flex items-center px-3 py-2 text-sm font-medium rounded-md"
+          >
+            <.icon name="hero-cog" class="mr-3 h-6 w-6" /> Settings
+          </.link>
+        <% end %>
+      </nav>
 
       <.list>
         <:item title="Name">{@organization.name}</:item>
